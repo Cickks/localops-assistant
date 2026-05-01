@@ -39,3 +39,8 @@ uv.lock
 # AISteve-specific (future phases)
 data/
 chroma_db/
+# Coverage artifacts
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
