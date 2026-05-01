@@ -39,3 +39,4 @@ testpaths = ["tests"]
 filterwarnings = [
     "ignore::DeprecationWarning:pydantic.*",
 ]
+addopts = "--cov=app --cov-report=term-missing --cov-fail-under=85"
