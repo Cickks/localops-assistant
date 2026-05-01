@@ -16,7 +16,7 @@ Engineering goals:
 
 - **Local-first** — no cloud LLM dependency. Everything runs on your hardware.
 - **Phased** — small, working increments. No big-bang rewrites.
-- **Production-style** — structured logging, request ID tracing, environment config, typed APIs, separated layers.
+- **Production-style** — structured logging, request ID tracing, environment config, typed APIs, separated layers, automated tests with 90% coverage.
 - **Portable** — runs on a laptop today, migrates to a mini PC tomorrow. Verified on Linux and Windows.
 
 ---
@@ -25,7 +25,7 @@ Engineering goals:
 
 | Phase | Status | Description |
 |-------|--------|-------------|
-| 1. Core Brain | 🚧 In progress (Parts 1–3 done) | FastAPI service, Ollama integration, streaming, request tracing, CORS |
+| 1. Core Brain | ✅ Complete | FastAPI service, Ollama integration, streaming, request tracing, CORS, 45 tests at 90% coverage |
 | 2. Memory & RAG | ⏳ Planned | ChromaDB, conversation persistence |
 | 3. Voice Node | ⏳ Planned | Raspberry Pi + Whisper STT |
 | 4. System Awareness | ⏳ Planned | Prometheus metrics, log analysis |
@@ -65,7 +65,7 @@ Code is organized in layers:
 - `app/core/` — Config, logging, exceptions, shared utilities
 - `app/schemas/` — Pydantic request/response models
 
-The service layer doesn't know about HTTP. The provider layer doesn't know about FastAPI. This separation is what lets future phases add new components (RAG, monitoring, voice) without rewrites.
+The service layer doesn't know about HTTP. The provider layer doesn't know about FastAPI. This separation is what lets future phases add new components (RAG, monitoring, voice) without rewrites — and it's also what makes the code testable in isolation.
 
 ---
 
@@ -79,7 +79,7 @@ The service layer doesn't know about HTTP. The provider layer doesn't know about
 | `POST` | `/api/v1/chat/stream` | Send a message, stream tokens as Server-Sent Events |
 | `GET`  | `/api/v1/models` | List models installed in Ollama |
 
-Every response carries an `X-Request-ID` header. The same ID appears on every log line emitted while handling that request, making issues straightforward to trace through the layers.
+Every response carries an `X-Request-ID` header. The same ID appears on every log line emitted while handling that request, making issues straightforward to trace through the layers. Clients can also send their own `X-Request-ID` header for distributed tracing — AISteve will honor it instead of generating a new one.
 
 Full interactive API docs are auto-generated at [`/docs`](http://localhost:8000/docs) when the server is running.
 
@@ -156,12 +156,40 @@ The `-N` flag disables curl's output buffering so chunks appear as they arrive.
 
 ---
 
+## Testing
+
+AISteve has 45 automated tests covering 90% of the application code. Tests are organized into two categories:
+
+- **Unit tests** (`tests/unit/`) — test one class in isolation against a fake provider. ~26 tests, sub-second runtime.
+- **Integration tests** (`tests/integration/`) — exercise the full request lifecycle (middleware → route → service → fake provider) using FastAPI's `TestClient`. ~19 tests, no real network.
+
+No tests require a running Ollama instance. The `OllamaProvider` tests use [`httpx.MockTransport`](https://www.python-httpx.org/advanced/transports/) to intercept HTTP calls inside the httpx client itself — real provider code paths execute (request building, NDJSON streaming, error mapping), but no network is involved.
+
+```bash
+# Run everything (unit + integration + coverage)
+uv run pytest
+
+# Run just unit tests for fast feedback during development
+uv run pytest tests/unit/
+
+# Run just integration tests
+uv run pytest tests/integration/
+
+# See verbose output with each test name
+uv run pytest -v
+```
+
+Coverage gates are enforced in `pyproject.toml`: pytest fails the build if total coverage drops below 85%.
+
+---
+
 ## Development
 
 | Command | Purpose |
 |---------|---------|
 | `uv run uvicorn app.main:app --reload` | Run dev server with hot reload |
-| `uv run pytest` | Run tests |
+| `uv run pytest` | Run all tests with coverage report |
+| `uv run pytest tests/unit/` | Run only unit tests (fastest) |
 | `uv run ruff check .` | Lint code |
 | `uv run ruff format .` | Format code |
 | `uv run ruff check --fix .` | Auto-fix lint issues |
