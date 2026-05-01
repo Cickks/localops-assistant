@@ -13,6 +13,7 @@ worker, or a test — and it would still work.
 """
 
 import time
+from collections.abc import AsyncIterator
 
 import structlog
 
@@ -62,6 +63,45 @@ class ChatService:
             message=reply,
             model=model,
             duration_ms=duration_ms,
+        )
+
+    async def chat_stream(self, request: ChatRequest) -> AsyncIterator[str]:
+        """
+        Handle a streaming chat request, yielding text chunks as they arrive.
+
+        Returns an async iterator of plain text chunks. The route layer is
+        responsible for wrapping these chunks in the SSE wire format —
+        keeping protocol concerns out of the service layer.
+
+        Token timing is logged at start and end. Per-chunk logging is
+        deliberately omitted (would be too noisy at INFO level).
+        """
+        model = request.model or settings.ollama_default_model
+        messages = self._build_messages(request)
+
+        logger.info(
+            "chat_stream_request_received",
+            model=model,
+            has_system_prompt=request.system_prompt is not None,
+            message_length=len(request.message),
+        )
+
+        start = time.perf_counter()
+        chunk_count = 0
+        total_chars = 0
+
+        async for chunk in self._ollama.chat_stream(messages=messages, model=model):
+            chunk_count += 1
+            total_chars += len(chunk)
+            yield chunk
+
+        duration_ms = int((time.perf_counter() - start) * 1000)
+        logger.info(
+            "chat_stream_request_completed",
+            model=model,
+            duration_ms=duration_ms,
+            chunk_count=chunk_count,
+            reply_length=total_chars,
         )
 
     async def list_models(self) -> ModelsResponse:

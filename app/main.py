@@ -8,7 +8,10 @@ Run locally:
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 
+from app.api.middleware import request_id_middleware
 from app.api.routes import chat, health
 from app.core.config import settings
 from app.core.logging import configure_logging, get_logger
@@ -49,6 +52,21 @@ app = FastAPI(
     description="Local AI Homelab Assistant (Jarvis-inspired)",
     version="0.1.0",
     lifespan=lifespan,
+)
+
+# Middleware order matters. Middleware added LAST runs FIRST on the request
+# (and LAST on the response). We want the request_id middleware to run as
+# early as possible so its context is available to everything downstream,
+# including CORS preflight responses and any errors.
+app.add_middleware(BaseHTTPMiddleware, dispatch=request_id_middleware)
+
+# CORS — allow the future dashboard (and dev tooling) to call this API from a browser.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_allowed_origins,
+    allow_credentials=settings.cors_allow_credentials,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Register all route modules. Each new endpoint group adds one line here.

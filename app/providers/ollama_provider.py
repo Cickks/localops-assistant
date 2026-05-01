@@ -9,6 +9,8 @@ Async HTTP via httpx. Errors are translated to typed exceptions so the
 service layer can handle them cleanly.
 """
 
+import json
+from collections.abc import AsyncIterator
 from datetime import datetime
 from typing import Any
 
@@ -77,11 +79,7 @@ class OllamaProvider:
             return False
 
     async def list_models(self) -> list[ModelInfo]:
-        """
-        List models installed in Ollama.
-
-        Calls Ollama's /api/tags endpoint.
-        """
+        """List models installed in Ollama."""
         try:
             response = await self._http.get("/api/tags")
             response.raise_for_status()
@@ -110,11 +108,10 @@ class OllamaProvider:
         model: str,
     ) -> str:
         """
-        Send a chat-style request to Ollama and return the assistant's reply.
+        Send a chat-style request to Ollama and return the full assistant reply.
 
-        Uses Ollama's /api/chat endpoint, which supports system/user/assistant
-        message lists. We use stream=False here for simplicity; streaming
-        will be a separate method added in Phase 1 Part 3.
+        Non-streaming: blocks until Ollama finishes generating, then returns the
+        complete response. For incremental delivery, use chat_stream().
         """
         body: dict[str, Any] = {
             "model": model,
@@ -135,14 +132,76 @@ class OllamaProvider:
             ) from e
 
         if response.status_code == 404:
-            # Ollama returns 404 with a body like {"error": "model 'foo' not found"}
             raise ModelNotFoundError(model)
         if response.status_code >= 400:
             raise OllamaError(f"Ollama returned {response.status_code}: {response.text[:300]}")
 
         payload = response.json()
-        # /api/chat response shape: {"message": {"role": "assistant", "content": "..."}, ...}
         return payload["message"]["content"]
+
+    async def chat_stream(
+        self,
+        messages: list[ChatRole],
+        model: str,
+    ) -> AsyncIterator[str]:
+        """
+        Stream a chat response from Ollama, yielding text chunks as they arrive.
+
+        Ollama's streaming /api/chat endpoint returns newline-delimited JSON (NDJSON):
+        each line is a complete JSON object representing one chunk of the response.
+        We parse each line and yield just the text content.
+
+        This is an async generator. Callers consume it like:
+
+            async for chunk in provider.chat_stream(messages, model):
+                ... # do something with each chunk
+
+        Errors raised during streaming are typed exceptions, same as chat().
+        """
+        body: dict[str, Any] = {
+            "model": model,
+            "messages": [m.model_dump() for m in messages],
+            "stream": True,
+        }
+
+        logger.debug("ollama_chat_stream_request", model=model, message_count=len(messages))
+
+        try:
+            async with self._http.stream("POST", "/api/chat", json=body) as response:
+                # Translate HTTP errors before iterating the body.
+                if response.status_code == 404:
+                    raise ModelNotFoundError(model)
+                if response.status_code >= 400:
+                    body_text = await response.aread()
+                    raise OllamaError(
+                        f"Ollama returned {response.status_code}: {body_text.decode()[:300]}"
+                    )
+
+                # Iterate Ollama's NDJSON stream line by line.
+                async for line in response.aiter_lines():
+                    if not line:
+                        continue
+                    try:
+                        chunk = json.loads(line)
+                    except json.JSONDecodeError:
+                        # Defensive: skip malformed lines rather than killing the stream.
+                        logger.warning("ollama_stream_bad_json", line=line[:200])
+                        continue
+
+                    # Each chunk has shape:
+                    #   {"message": {"role": "assistant", "content": "..."}, "done": false}
+                    # The final chunk has "done": true and an empty content (or no message).
+                    message = chunk.get("message")
+                    if message and message.get("content"):
+                        yield message["content"]
+
+                    if chunk.get("done"):
+                        break
+
+        except (httpx.ConnectError, httpx.ConnectTimeout) as e:
+            raise OllamaUnreachableError(f"Cannot reach Ollama at {self._base_url}") from e
+        except httpx.ReadTimeout as e:
+            raise OllamaTimeoutError(f"Ollama timed out streaming (>{self._timeout}s).") from e
 
 
 def _parse_ollama_timestamp(raw: str) -> datetime:
@@ -153,12 +212,9 @@ def _parse_ollama_timestamp(raw: str) -> datetime:
     e.g., "2026-04-30T22:45:01.123456789Z". Python's fromisoformat handles
     most of this in 3.11+, but truncate nanoseconds to microseconds first.
     """
-    # Replace trailing 'Z' with '+00:00' for fromisoformat
     cleaned = raw.replace("Z", "+00:00")
-    # Truncate fractional seconds beyond microsecond precision
     if "." in cleaned:
         head, tail = cleaned.split(".", 1)
-        # tail looks like "123456789+00:00" — keep first 6 digits of fraction
         frac, _, tz = tail.partition("+")
         cleaned = f"{head}.{frac[:6]}+{tz}"
     return datetime.fromisoformat(cleaned)
