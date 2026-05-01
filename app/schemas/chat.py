@@ -5,7 +5,7 @@ These define the contract between AISteve and its clients.
 Everything HTTP-facing in the chat domain is shaped here.
 """
 
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Literal
 from uuid import UUID
 
@@ -50,7 +50,7 @@ class ChatResponse(BaseModel):
     model: str = Field(..., description="The model that generated this response.")
     duration_ms: int = Field(..., ge=0, description="Total time in milliseconds.")
     created_at: datetime = Field(
-        default_factory=lambda: datetime.utcnow(),
+        default_factory=lambda: datetime.now(UTC),
         description="UTC timestamp when the response was produced.",
     )
 
