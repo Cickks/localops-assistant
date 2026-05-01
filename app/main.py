@@ -3,30 +3,21 @@ AISteve — FastAPI application entry point.
 
 Run locally:
     uv run uvicorn app.main:app --reload
-
-The --reload flag auto-restarts on code changes. Don't use it in production.
 """
 
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app.api.routes import health
+from app.api.routes import chat, health
 from app.core.config import settings
 from app.core.logging import configure_logging, get_logger
+from app.providers.ollama_provider import OllamaProvider
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """
-    Application lifespan manager.
-
-    Code before `yield` runs at startup.
-    Code after `yield` runs at shutdown.
-
-    This replaces the older @app.on_event("startup")/("shutdown") pattern,
-    which was deprecated in FastAPI in favor of lifespan context managers.
-    """
+    """Application lifespan manager — owns long-lived resources."""
     # --- startup ---
     configure_logging()
     logger = get_logger("aisteve.startup")
@@ -39,10 +30,18 @@ async def lifespan(app: FastAPI):
         ollama_base_url=settings.ollama_base_url,
     )
 
-    yield  # <-- application runs here
+    ollama = OllamaProvider(
+        base_url=settings.ollama_base_url,
+        timeout_seconds=settings.ollama_timeout_seconds,
+    )
+    await ollama.start()
+    app.state.ollama = ollama
+
+    yield
 
     # --- shutdown ---
     logger.info("application_stopping")
+    await ollama.stop()
 
 
 app = FastAPI(
@@ -52,6 +51,6 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Register route modules.
-# As we add new endpoint groups (chat, voice, system, etc.), they get added here.
+# Register all route modules. Each new endpoint group adds one line here.
 app.include_router(health.router)
+app.include_router(chat.router)

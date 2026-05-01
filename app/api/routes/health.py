@@ -1,23 +1,15 @@
 """
 Health check endpoints.
 
-We expose two distinct endpoints because they answer different questions:
-
-- /health  → "Is the process up?"  (liveness)
-              Used by Docker/systemd/Kubernetes to decide whether to restart us.
-
-- /ready   → "Can I serve traffic?" (readiness)
-              Used by load balancers to decide whether to route requests here.
-              Returns 503 if dependencies (Ollama) are unreachable.
-
-Splitting these is the production standard — restarting an app because Ollama
-is down is wrong (we'll come back when it's back), but routing traffic to it
-in that state is also wrong.
+- /health → Liveness. "Is the process up?"
+- /ready  → Readiness. "Can I serve traffic right now?"
+            Now actually checks that Ollama is reachable.
 """
 
-from fastapi import APIRouter, status
+from fastapi import APIRouter, Response, status
 from pydantic import BaseModel
 
+from app.api.dependencies import OllamaProviderDep
 from app.core.config import settings
 from app.core.logging import get_logger
 
@@ -35,6 +27,13 @@ class HealthResponse(BaseModel):
     version: str
 
 
+class ReadyResponse(BaseModel):
+    """Response shape for the /ready endpoint."""
+
+    status: str
+    ollama_reachable: bool
+
+
 @router.get(
     "/health",
     response_model=HealthResponse,
@@ -42,12 +41,7 @@ class HealthResponse(BaseModel):
     status_code=status.HTTP_200_OK,
 )
 async def health() -> HealthResponse:
-    """
-    Liveness probe.
-
-    Returns 200 if the process is alive and configured. Does NOT check
-    downstream dependencies — that's what /ready is for.
-    """
+    """Returns 200 if the process is alive."""
     return HealthResponse(
         status="ok",
         app_name=settings.app_name,
@@ -58,15 +52,19 @@ async def health() -> HealthResponse:
 
 @router.get(
     "/ready",
-    summary="Readiness check",
-    status_code=status.HTTP_200_OK,
+    response_model=ReadyResponse,
+    summary="Readiness check (verifies Ollama is reachable)",
 )
-async def ready() -> dict[str, str]:
+async def ready(ollama: OllamaProviderDep, response: Response) -> ReadyResponse:
     """
-    Readiness probe.
+    Returns 200 if Ollama is reachable, 503 otherwise.
 
-    In Phase 1 we don't yet check Ollama — the provider doesn't exist.
-    When we add OllamaProvider in Phase 1.x, this endpoint will ping
-    Ollama's /api/version and return 503 if it's unreachable.
+    Used by load balancers and orchestrators to decide whether
+    to send traffic to this instance.
     """
-    return {"status": "ready"}
+    reachable = await ollama.health_check()
+    if not reachable:
+        response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+        logger.warning("readiness_check_failed", ollama_reachable=False)
+        return ReadyResponse(status="not_ready", ollama_reachable=False)
+    return ReadyResponse(status="ready", ollama_reachable=True)
