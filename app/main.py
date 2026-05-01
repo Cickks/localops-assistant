@@ -8,6 +8,7 @@ Run locally:
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import chat, health
 from app.core.config import settings
@@ -49,6 +50,16 @@ app = FastAPI(
     description="Local AI Homelab Assistant (Jarvis-inspired)",
     version="0.1.0",
     lifespan=lifespan,
+)
+
+# CORS — allow the future dashboard (and dev tooling) to call this API from a browser.
+# Without this, browser-based clients on different origins are blocked by the browser.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_allowed_origins,
+    allow_credentials=settings.cors_allow_credentials,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Register all route modules. Each new endpoint group adds one line here.

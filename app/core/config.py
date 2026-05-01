@@ -53,6 +53,20 @@ class Settings(BaseSettings):
         description="HTTP request timeout when calling Ollama.",
     )
 
+    # CORS
+    cors_allowed_origins: list[str] = Field(
+        default_factory=lambda: ["http://localhost:3000", "http://localhost:5173"],
+        description=(
+            "List of allowed origins for CORS. "
+            "Defaults cover Create React App (3000) and Vite (5173) dev servers. "
+            "Set to ['*'] to allow all origins (development only — never in production)."
+        ),
+    )
+    cors_allow_credentials: bool = Field(
+        default=True,
+        description="Whether to allow credentials (cookies, auth headers) in CORS requests.",
+    )
+
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
