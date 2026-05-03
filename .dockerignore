@@ -1,0 +1,36 @@
+# Git and CI
+.git
+.github
+.gitignore
+
+# Python artifacts
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache
+.coverage
+.coverage.*
+htmlcov
+
+# Virtualenv
+.venv
+
+# Environment files (never bake into images)
+.env
+.env.*
+!.env.example
+
+# Tests aren't needed in the production image
+tests
+
+# IDE
+.vscode
+.idea
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Project
+README.md

@@ -1,5 +1,9 @@
 # AISteve
 
+[![CI](https://github.com/Cickks/AISTEVE/actions/workflows/ci.yml/badge.svg)](https://github.com/Cickks/AISTEVE/actions/workflows/ci.yml)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 > A local-first AI homelab assistant — Jarvis-inspired, but grounded in real engineering.
 
 AISteve is a self-hosted AI assistant designed to run on a homelab. It uses a local LLM (via [Ollama](https://ollama.com)), exposes a clean HTTP API with streaming support, and is built to grow into a full system-aware assistant — RAG over personal notes, voice input, system monitoring, and safe command execution.
@@ -213,6 +217,36 @@ All configuration is loaded from `.env`. See `.env.example` for all variables.
 | `CORS_ALLOW_CREDENTIALS` | `true` | Whether to allow cookies/auth headers in CORS requests |
 
 ---
+### Run the API
+
+Two ways: directly with uvicorn for development, or with Docker for an environment closer to production.
+
+**Option 1 — Local (with hot reload):**
+
+```bash
+uv run uvicorn app.main:app --reload
+```
+
+This requires Ollama running on the host at `http://localhost:11434`.
+
+**Option 2 — Docker Compose (AISteve + Ollama together):**
+
+```bash
+docker compose up
+```
+
+This brings up both AISteve and an Ollama container on the same Docker network. AISteve reaches Ollama by service name (`http://ollama:11434`), no host configuration needed. Models persist across restarts in a named Docker volume.
+
+First time only, pull a model into the Ollama container:
+
+```bash
+docker exec aisteve-ollama ollama pull llama3.1:8b
+```
+
+Either way, the API is live at:
+
+- API docs: http://localhost:8000/docs
+- Health check: http://localhost:8000/health
 
 ## License
 
