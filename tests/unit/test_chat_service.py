@@ -27,12 +27,12 @@ class TestChatServiceNonStreaming:
     async def test_returns_response_with_provider_reply(
         self, fake_ollama: FakeOllamaProvider
     ) -> None:
-        fake_ollama.canned_chat_response = "Hello, AISteve"
+        fake_ollama.canned_chat_response = "Hello, LocalOps"
         service = ChatService(ollama=fake_ollama)
 
         result = await service.chat(ChatRequest(message="hi"))
 
-        assert result.message == "Hello, AISteve"
+        assert result.message == "Hello, LocalOps"
         assert result.duration_ms >= 0
         assert result.conversation_id is None  # Phase 2 will set this
 

@@ -1,11 +1,11 @@
 """
-Custom exception types used across AISteve.
+Custom exception types used across LocalOps Assistant.
 
 Each exception type maps to a specific failure mode. Catching by type
 lets us return the right HTTP status code without inspecting error messages.
 
 Hierarchy:
-    AISteveError                    (base — never raised directly)
+    LocalOpsAssistantError          (base, never raised directly)
     ├── OllamaError                 (any Ollama-related failure)
     │   ├── OllamaUnreachableError  (network/connection failed)
     │   ├── OllamaTimeoutError      (request exceeded timeout)
@@ -14,11 +14,11 @@ Hierarchy:
 """
 
 
-class AISteveError(Exception):
-    """Base exception for all AISteve-specific errors."""
+class LocalOpsAssistantError(Exception):
+    """Base exception for LocalOps Assistant errors."""
 
 
-class OllamaError(AISteveError):
+class OllamaError(LocalOpsAssistantError):
     """Base exception for any failure when talking to Ollama."""
 
 
@@ -40,5 +40,5 @@ class ModelNotFoundError(OllamaError):
         )
 
 
-class ConfigurationError(AISteveError):
+class ConfigurationError(LocalOpsAssistantError):
     """Configuration is invalid or incomplete."""

@@ -1,5 +1,5 @@
 """
-HTTP middleware for AISteve.
+HTTP middleware for LocalOps Assistant.
 
 Middleware runs on every request before it reaches a route handler, and on
 every response before it's sent to the client. It's the right place for

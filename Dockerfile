@@ -29,19 +29,19 @@ FROM python:3.11-slim AS runtime
 
 # Create an unprivileged user. Containers running as root are an
 # unnecessary security risk — costs nothing to run as a regular user.
-RUN groupadd --system --gid 1000 aisteve \
- && useradd --system --uid 1000 --gid aisteve --create-home aisteve
+RUN groupadd --system --gid 1000 localops \
+ && useradd --system --uid 1000 --gid localops --create-home localops
 
 WORKDIR /app
 
 # Copy the resolved venv from the builder. This is the only thing we need
 # from the builder stage — no uv, no build artifacts, no apt cache.
-COPY --from=builder --chown=aisteve:aisteve /app/.venv /app/.venv
+COPY --from=builder --chown=localops:localops /app/.venv /app/.venv
 
 # Copy application source. .dockerignore prevents tests, .env, etc.
 # from being included.
-COPY --chown=aisteve:aisteve app ./app
-COPY --chown=aisteve:aisteve pyproject.toml ./pyproject.toml
+COPY --chown=localops:localops app ./app
+COPY --chown=localops:localops pyproject.toml ./pyproject.toml
 
 # Put the venv on PATH so `python` and `uvicorn` resolve from it without
 # needing `uv run` (which we don't have in this stage).
@@ -49,7 +49,7 @@ ENV PATH="/app/.venv/bin:$PATH" \
     PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 
-USER aisteve
+USER localops
 
 EXPOSE 8000
 
