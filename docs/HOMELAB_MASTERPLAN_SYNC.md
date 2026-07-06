@@ -10,18 +10,18 @@ AI Steve is downstream of the enterprise homelab foundation. It should not becom
 
 Current Phase 12 status:
 
-| Phase | Status | Notes |
-| --- | --- | --- |
-| 12.0A LINUX01 practice before INFRA01 | Complete | Baseline, package maintenance, reboot validation, SSH, Docker, containerd, Portainer, and storage checks completed |
-| 12.0B INFRA01 production readiness | Planned | Start after the LINUX01 practice path through 12.7 unless hardware readiness becomes urgent |
-| 12.1 Samba baseline | Complete | Internal SMB share validated from Windows |
-| 12.2 NFS baseline | Complete | Internal NFS export validated with mount, write, read, delete, unmount, and cleanup |
-| 12.3 Cron jobs | Next | Scheduled maintenance and report jobs |
-| 12.4 systemd services | Planned | Custom service lifecycle management and logs |
-| 12.5 SSH keys | Planned | INFRA01 key auth and sync workflow |
-| 12.6 Linux backups | Planned | Config, service data, documentation, and restore validation |
-| 12.7 First self-hosted app decision | Planned | Choose one starter app after backup basics are proven |
-| 12.8 Enterprise documentation platform | Planned | BookStack or Wiki.js, not both at first |
+| Phase                                  | Status   | Notes                                                                                                              |
+| -------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------ |
+| 12.0A LINUX01 practice before INFRA01  | Complete | Baseline, package maintenance, reboot validation, SSH, Docker, containerd, Portainer, and storage checks completed |
+| 12.0B INFRA01 production readiness     | Planned  | Start after the LINUX01 practice path through 12.7 unless hardware readiness becomes urgent                        |
+| 12.1 Samba baseline                    | Complete | Internal SMB share validated from Windows                                                                          |
+| 12.2 NFS baseline                      | Complete | Internal NFS export validated with mount, write, read, delete, unmount, and cleanup                                |
+| 12.3 Cron jobs                         | Next     | Scheduled maintenance and report jobs                                                                              |
+| 12.4 systemd services                  | Planned  | Custom service lifecycle management and logs                                                                       |
+| 12.5 SSH keys                          | Planned  | INFRA01 key auth and sync workflow                                                                                 |
+| 12.6 Linux backups                     | Planned  | Config, service data, documentation, and restore validation                                                        |
+| 12.7 First self-hosted app decision    | Planned  | Choose one starter app after backup basics are proven                                                              |
+| 12.8 Enterprise documentation platform | Planned  | BookStack or Wiki.js, not both at first                                                                            |
 
 ## App Placement
 

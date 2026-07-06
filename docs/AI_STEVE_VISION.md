@@ -31,18 +31,18 @@ AI Steve should not manage undocumented experiments. It should operate against s
 
 ## Major Layers
 
-| Layer | Purpose |
-| --- | --- |
-| Infrastructure Steve | Understands servers, services, Docker, backups, logs, alerts, and health checks |
-| Documentation Steve | Reads and updates SOPs, phase notes, server docs, diagrams, incident reports, and change notes |
-| Help Desk Steve | Creates tickets, guides troubleshooting, summarizes fixes, and turns issues into portfolio evidence |
-| Security Steve | Explains alerts, reviews suspicious activity, suggests response steps, and supports SOC-style workflows |
-| Automation Steve | Runs approved scripts, creates reports, performs checks, and schedules safe recurring tasks |
-| Portfolio Steve | Turns completed work into resume bullets, GitHub notes, case studies, and interview stories |
-| Study Steve | Supports certification study, mock interviews, quizzes, and weak-area review |
-| Business Steve | Helps build client websites, service packages, support workflows, appointment flows, and lead handling |
-| Personal Steve | Tracks goals, routines, reminders, projects, and priorities |
-| Voice/Dashboard Steve | Provides a command center UI and eventually voice interaction for the whole system |
+| Layer                 | Purpose                                                                                                 |
+| --------------------- | ------------------------------------------------------------------------------------------------------- |
+| Infrastructure Steve  | Understands servers, services, Docker, backups, logs, alerts, and health checks                         |
+| Documentation Steve   | Reads and updates SOPs, phase notes, server docs, diagrams, incident reports, and change notes          |
+| Help Desk Steve       | Creates tickets, guides troubleshooting, summarizes fixes, and turns issues into portfolio evidence     |
+| Security Steve        | Explains alerts, reviews suspicious activity, suggests response steps, and supports SOC-style workflows |
+| Automation Steve      | Runs approved scripts, creates reports, performs checks, and schedules safe recurring tasks             |
+| Portfolio Steve       | Turns completed work into resume bullets, GitHub notes, case studies, and interview stories             |
+| Study Steve           | Supports certification study, mock interviews, quizzes, and weak-area review                            |
+| Business Steve        | Helps build client websites, service packages, support workflows, appointment flows, and lead handling  |
+| Personal Steve        | Tracks goals, routines, reminders, projects, and priorities                                             |
+| Voice/Dashboard Steve | Provides a command center UI and eventually voice interaction for the whole system                      |
 
 ## Future Capabilities
 
@@ -80,36 +80,36 @@ before becoming an important always-on services host.
 
 AI Steve can grow into a multi-agent system, but each agent should have a clear scope.
 
-| Agent | Scope |
-| --- | --- |
-| Windows Infrastructure Agent | AD, DNS, DHCP, GPO, file services, print services, Windows health |
-| Linux Infrastructure Agent | SSH, packages, systemd, cron, storage, logs, Docker hosts |
-| Networking Agent | IP plans, DNS, routing, firewall notes, diagrams, connectivity checks |
-| Monitoring Agent | Uptime, metrics, logs, dashboards, alert summaries |
-| Security Agent | SIEM alerts, hardening notes, incident response, vulnerability triage |
-| Automation Agent | PowerShell, Bash, scheduled jobs, reports, safe execution plans |
-| Documentation Agent | SOPs, runbooks, phase trackers, changelogs, evidence capture |
-| Career Agent | Resume bullets, STAR stories, interview prep, portfolio packaging |
-| Business Agent | Client workflows, website services, support flows, sales/admin automation |
-| Personal Operations Agent | Goals, routines, reminders, planning, weekly reviews |
+| Agent                        | Scope                                                                     |
+| ---------------------------- | ------------------------------------------------------------------------- |
+| Windows Infrastructure Agent | AD, DNS, DHCP, GPO, file services, print services, Windows health         |
+| Linux Infrastructure Agent   | SSH, packages, systemd, cron, storage, logs, Docker hosts                 |
+| Networking Agent             | IP plans, DNS, routing, firewall notes, diagrams, connectivity checks     |
+| Monitoring Agent             | Uptime, metrics, logs, dashboards, alert summaries                        |
+| Security Agent               | SIEM alerts, hardening notes, incident response, vulnerability triage     |
+| Automation Agent             | PowerShell, Bash, scheduled jobs, reports, safe execution plans           |
+| Documentation Agent          | SOPs, runbooks, phase trackers, changelogs, evidence capture              |
+| Career Agent                 | Resume bullets, STAR stories, interview prep, portfolio packaging         |
+| Business Agent               | Client workflows, website services, support flows, sales/admin automation |
+| Personal Operations Agent    | Goals, routines, reminders, planning, weekly reviews                      |
 
 ## Infrastructure Path
 
 AI Steve appears late in the homelab sequence on purpose.
 
-| Phase | Relationship To AI Steve |
-| --- | --- |
-| 12 | Linux/self-hosting foundations on LINUX01: Samba, NFS, cron, systemd, SSH keys, backups, first-app planning, and documentation platform planning |
-| 12.8 | Enterprise documentation platform planning gives AI Steve SOPs, change logs, incidents, rollback notes, and backup/restore evidence to read later |
-| 14 | Monitoring and observability provide status data |
-| 15 | ITSM/ticketing gives Steve operational workflows |
-| 16 | SOC/security tooling gives Steve security context |
-| 18 | INFRA01 becomes a real always-on services host after SSD readiness and production-readiness work |
-| 20 | DevOps/IaC gives Steve repeatable deployment context |
-| 21 | Databases/APIs/web services give Steve application foundations |
-| 22 | AI Steve becomes the primary AI platform project |
-| 23 | AI Steve expands toward business automation and client-facing services |
-| 25 | AI Steve helps package the whole journey into career evidence |
+| Phase | Relationship To AI Steve                                                                                                                          |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 12    | Linux/self-hosting foundations on LINUX01: Samba, NFS, cron, systemd, SSH keys, backups, first-app planning, and documentation platform planning  |
+| 12.8  | Enterprise documentation platform planning gives AI Steve SOPs, change logs, incidents, rollback notes, and backup/restore evidence to read later |
+| 14    | Monitoring and observability provide status data                                                                                                  |
+| 15    | ITSM/ticketing gives Steve operational workflows                                                                                                  |
+| 16    | SOC/security tooling gives Steve security context                                                                                                 |
+| 18    | INFRA01 becomes a real always-on services host after SSD readiness and production-readiness work                                                  |
+| 20    | DevOps/IaC gives Steve repeatable deployment context                                                                                              |
+| 21    | Databases/APIs/web services give Steve application foundations                                                                                    |
+| 22    | AI Steve becomes the primary AI platform project                                                                                                  |
+| 23    | AI Steve expands toward business automation and client-facing services                                                                            |
+| 25    | AI Steve helps package the whole journey into career evidence                                                                                     |
 
 ## INFRA01 Relationship
 
