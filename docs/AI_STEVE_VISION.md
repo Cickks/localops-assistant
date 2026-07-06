@@ -67,10 +67,11 @@ Steve, what is the state of the homelab?
 
 AI Steve:
 Phase 12 is active. LINUX01 is the current Linux/self-hosting practice host.
-INFRA01 is online but still staging on microSD. DC01, DHCP01, FILE01, PRINT01,
-and LINUX01 are documented. Portainer was last validated on LINUX01. The next
-recommended task is the Samba baseline. Deferred risk: INFRA01 needs SSD storage
-before becoming the main always-on services host in Phase 18.
+Samba and NFS are complete. DC01, DHCP01, FILE01, PRINT01, LINUX01, and
+INFRA01 are documented. The next recommended task is Phase 12.3 Cron jobs.
+Deferred risk: INFRA01 is online but still staging on microSD and needs SSD
+storage, Docker data placement, backups, monitoring, and rollback documentation
+before becoming an important always-on services host.
 ```
 
 ## Agent Model
@@ -96,11 +97,12 @@ AI Steve appears late in the homelab sequence on purpose.
 
 | Phase | Relationship To AI Steve |
 | --- | --- |
-| 12 | Linux/self-hosting foundations on LINUX01 |
+| 12 | Linux/self-hosting foundations on LINUX01: Samba, NFS, cron, systemd, SSH keys, backups, first-app planning, and documentation platform planning |
+| 12.8 | Enterprise documentation platform planning gives AI Steve SOPs, change logs, incidents, rollback notes, and backup/restore evidence to read later |
 | 14 | Monitoring and observability provide status data |
 | 15 | ITSM/ticketing gives Steve operational workflows |
 | 16 | SOC/security tooling gives Steve security context |
-| 18 | INFRA01 becomes a real always-on services host after SSD readiness |
+| 18 | INFRA01 becomes a real always-on services host after SSD readiness and production-readiness work |
 | 20 | DevOps/IaC gives Steve repeatable deployment context |
 | 21 | Databases/APIs/web services give Steve application foundations |
 | 22 | AI Steve becomes the primary AI platform project |
@@ -115,7 +117,12 @@ Current decision:
 
 - LINUX01 is the current practice and staging host.
 - INFRA01 is a staged Raspberry Pi infrastructure node.
-- INFRA01 should stay light until SSD storage and backup planning are ready.
+- INFRA01 should stay light until SSD storage, Docker data placement, backup planning, monitoring, and rollback are ready.
+- The current master plan completes LINUX01 practice through Phase 12.7 before starting Phase 12.0B INFRA01 production readiness, unless hardware readiness becomes urgent.
+- Gitea is the preferred first self-hosted application after backup basics because it teaches Git, repositories, service ownership, persistence, updates, and restore testing.
+- Vaultwarden comes after backup and security handling are proven because it stores secrets.
+- Nextcloud and Jellyfin stay deferred until storage and restore confidence are stronger.
+- BookStack or Wiki.js belongs in Phase 12.8 as the enterprise documentation platform, with BookStack preferred first for clean SOPs and operational documentation.
 - Around Phase 18, INFRA01 can become an always-on Docker/container services host.
 - Around Phase 22, AI Steve can observe or manage INFRA01 after monitoring, inventory, logs, backups, and rollback are documented.
 
