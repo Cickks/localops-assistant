@@ -8,6 +8,8 @@
 
 AISteve is a self-hosted AI assistant designed to run on a homelab. It uses a local LLM (via [Ollama](https://ollama.com)), exposes a clean HTTP API with streaming support, and is built to grow into a full system-aware assistant — RAG over personal notes, voice input, system monitoring, and safe command execution.
 
+Long term, AISteve is intended to become more than an infrastructure chatbot. The larger vision is a **personal enterprise operating system** for Michael's homelab, career development, portfolio, future business workflows, and day-to-day productivity. See [docs/AI_STEVE_VISION.md](docs/AI_STEVE_VISION.md).
+
 This repo is a **portfolio project** built in public, in phases, with a focus on clean architecture and real-world production patterns.
 
 ---
@@ -22,6 +24,7 @@ Engineering goals:
 - **Phased** — small, working increments. No big-bang rewrites.
 - **Production-style** — structured logging, request ID tracing, environment config, typed APIs, separated layers, automated tests with 90% coverage.
 - **Portable** — runs on a laptop today, migrates to a mini PC tomorrow. Verified on Linux and Windows.
+- **Bigger than chat** — grows into an AI command center for infrastructure, documentation, tickets, security, automation, career evidence, business workflows, and personal productivity.
 
 ---
 
@@ -36,6 +39,7 @@ Engineering goals:
 | 5. Safe Command Execution | ⏳ Planned | Whitelisted command runner |
 | 6. Dashboard | ⏳ Planned | React frontend |
 | 7. Production Migration | ⏳ Planned | Mini PC deployment, reverse proxy, TLS |
+| 8. Personal Enterprise OS | 🔮 Future | Agents for infrastructure, documentation, help desk, security, portfolio, study, business, and productivity workflows |
 
 ---
 
