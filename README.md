@@ -9,6 +9,36 @@ models, structured logging, request ID tracing, health checks, Docker support, a
 The current implementation is intentionally small. It does not include memory, RAG, voice control,
 monitoring integrations, command execution, or a frontend dashboard yet.
 
+## Master Plan Alignment: Phase 22
+
+LocalOps Assistant maps to **Phase 22: LocalOps Assistant / AI Operations Platform** in the homelab
+master plan. Phase 22 is planned for later in the roadmap, after the Windows, Linux, networking,
+cybersecurity, monitoring, cloud, automation, and DevOps foundation is documented and stable.
+
+The Phase 22 goal is not to bolt AI onto unfinished infrastructure. The goal is to build a local AI
+operations platform that can safely read from, summarize, and eventually assist with documented
+services, health checks, logs, inventories, SOPs, incidents, and change records.
+
+Current Phase 22 scope from the master plan:
+
+- Prompt and versioning standards
+- Provider abstraction
+- Operations automation patterns
+- Read-only visibility into documented services first
+- Approval gates before any write or command-execution workflow
+- Rollback plans before the assistant affects infrastructure
+
+Homelab sequencing matters:
+
+- Phase 14 adds monitoring and dashboard visibility.
+- Phase 18 promotes `INFRA01` into a real always-on container/services node after SSD readiness.
+- Phase 22 allows LocalOps Assistant to observe or manage `INFRA01` only after services are
+  documented, monitored, and backed up.
+
+This repository is the early API foundation for that future Phase 22 platform. It should stay honest
+about what exists today and should not claim production operations features until they are built,
+tested, and documented.
+
 ## Features
 
 - FastAPI application with OpenAPI documentation at `/docs`
