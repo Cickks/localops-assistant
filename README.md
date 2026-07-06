@@ -16,6 +16,39 @@ This repo is a **portfolio project** built in public, in phases, with a focus on
 
 ---
 
+## Master plan alignment
+
+AISteve is intentionally later in the enterprise homelab roadmap. The current priority is to finish the infrastructure foundation first, then let AISteve read, summarize, and eventually assist with documented systems.
+
+Current homelab sequence:
+
+| Homelab phase               | Status   | Why it matters for AISteve                                                                                                |
+| --------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------- |
+| 12.1 Samba                  | Complete | Teaches internal file sharing, permissions, service validation, and rollback evidence                                     |
+| 12.2 NFS                    | Complete | Teaches Linux storage exports, mount validation, client scope, and service troubleshooting                                |
+| 12.3 Cron jobs              | Next     | Gives AISteve future scheduled checks, reports, and maintenance workflows to understand                                   |
+| 12.4 systemd services       | Planned  | Teaches service lifecycle, logs, enablement, restart behavior, and failure handling                                       |
+| 12.5 SSH keys               | Planned  | Creates the secure remote-admin foundation for automation and sync workflows                                              |
+| 12.6 Linux backups          | Planned  | Establishes restore discipline before AISteve can trust or suggest operational changes                                    |
+| 12.7 First app decision     | Planned  | Gitea is the preferred first app after backup basics; Vaultwarden comes later after security handling is proven           |
+| 12.8 Documentation platform | Planned  | BookStack or Wiki.js will become a structured source of SOPs, incidents, change logs, rollback notes, and backup evidence |
+| 12.0B INFRA01 readiness     | Planned  | INFRA01 stays staged until SSD storage, Docker data placement, backups, monitoring, and rollback are documented           |
+
+AISteve should eventually consume:
+
+- Phase tracker and roadmap
+- Server and service inventory
+- Port inventory
+- SOPs and runbooks
+- Troubleshooting guides
+- Change logs and incident reports
+- Backup and restore evidence
+- Monitoring output after the monitoring phase exists
+
+AISteve should not perform write operations against homelab systems until those systems have clear access paths, monitoring, backups, and rollback procedures.
+
+---
+
 ## Why this project exists
 
 Most "AI chatbot" tutorials skip the engineering. AISteve is the opposite: the LLM is just one component. The interesting parts are the architecture, the layered codebase, the operational concerns (logging, request tracing, health checks, configuration), and the path to running this on real homelab hardware.
@@ -32,16 +65,16 @@ Engineering goals:
 
 ## Phase status
 
-| Phase | Status | Description |
-|-------|--------|-------------|
-| 1. Core Brain | ✅ Complete | FastAPI service, Ollama integration, streaming, request tracing, CORS, 45 tests at 90% coverage |
-| 2. Memory & RAG | ⏳ Planned | ChromaDB, conversation persistence |
-| 3. Voice Node | ⏳ Planned | Raspberry Pi + Whisper STT |
-| 4. System Awareness | ⏳ Planned | Prometheus metrics, log analysis |
-| 5. Safe Command Execution | ⏳ Planned | Whitelisted command runner |
-| 6. Dashboard | ⏳ Planned | React frontend |
-| 7. Production Migration | ⏳ Planned | Mini PC deployment, reverse proxy, TLS |
-| 8. Personal Enterprise OS | 🔮 Future | Agents for infrastructure, documentation, help desk, security, portfolio, study, business, and productivity workflows |
+| Phase                     | Status      | Description                                                                                                           |
+| ------------------------- | ----------- | --------------------------------------------------------------------------------------------------------------------- |
+| 1. Core Brain             | ✅ Complete | FastAPI service, Ollama integration, streaming, request tracing, CORS, 45 tests at 90% coverage                       |
+| 2. Memory & RAG           | ⏳ Planned  | ChromaDB, conversation persistence                                                                                    |
+| 3. Voice Node             | ⏳ Planned  | Raspberry Pi + Whisper STT                                                                                            |
+| 4. System Awareness       | ⏳ Planned  | Prometheus metrics, log analysis                                                                                      |
+| 5. Safe Command Execution | ⏳ Planned  | Whitelisted command runner                                                                                            |
+| 6. Dashboard              | ⏳ Planned  | React frontend                                                                                                        |
+| 7. Production Migration   | ⏳ Planned  | Mini PC deployment, reverse proxy, TLS                                                                                |
+| 8. Personal Enterprise OS | 🔮 Future   | Agents for infrastructure, documentation, help desk, security, portfolio, study, business, and productivity workflows |
 
 ---
 
@@ -81,13 +114,13 @@ The service layer doesn't know about HTTP. The provider layer doesn't know about
 
 ## API endpoints
 
-| Method | Path | Purpose |
-|--------|------|---------|
-| `GET`  | `/health` | Liveness probe (always returns 200 if the process is up) |
-| `GET`  | `/ready` | Readiness probe (returns 503 if Ollama is unreachable) |
-| `POST` | `/api/v1/chat` | Send a message, receive the complete response |
-| `POST` | `/api/v1/chat/stream` | Send a message, stream tokens as Server-Sent Events |
-| `GET`  | `/api/v1/models` | List models installed in Ollama |
+| Method | Path                  | Purpose                                                  |
+| ------ | --------------------- | -------------------------------------------------------- |
+| `GET`  | `/health`             | Liveness probe (always returns 200 if the process is up) |
+| `GET`  | `/ready`              | Readiness probe (returns 503 if Ollama is unreachable)   |
+| `POST` | `/api/v1/chat`        | Send a message, receive the complete response            |
+| `POST` | `/api/v1/chat/stream` | Send a message, stream tokens as Server-Sent Events      |
+| `GET`  | `/api/v1/models`      | List models installed in Ollama                          |
 
 Every response carries an `X-Request-ID` header. The same ID appears on every log line emitted while handling that request, making issues straightforward to trace through the layers. Clients can also send their own `X-Request-ID` header for distributed tracing — AISteve will honor it instead of generating a new one.
 
@@ -195,14 +228,14 @@ Coverage gates are enforced in `pyproject.toml`: pytest fails the build if total
 
 ## Development
 
-| Command | Purpose |
-|---------|---------|
-| `uv run uvicorn app.main:app --reload` | Run dev server with hot reload |
-| `uv run pytest` | Run all tests with coverage report |
-| `uv run pytest tests/unit/` | Run only unit tests (fastest) |
-| `uv run ruff check .` | Lint code |
-| `uv run ruff format .` | Format code |
-| `uv run ruff check --fix .` | Auto-fix lint issues |
+| Command                                | Purpose                            |
+| -------------------------------------- | ---------------------------------- |
+| `uv run uvicorn app.main:app --reload` | Run dev server with hot reload     |
+| `uv run pytest`                        | Run all tests with coverage report |
+| `uv run pytest tests/unit/`            | Run only unit tests (fastest)      |
+| `uv run ruff check .`                  | Lint code                          |
+| `uv run ruff format .`                 | Format code                        |
+| `uv run ruff check --fix .`            | Auto-fix lint issues               |
 
 ---
 
@@ -210,19 +243,20 @@ Coverage gates are enforced in `pyproject.toml`: pytest fails the build if total
 
 All configuration is loaded from `.env`. See `.env.example` for all variables.
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `APP_ENV` | `development` | Runtime environment (`development`, `staging`, `production`) |
-| `LOG_LEVEL` | `INFO` | Log verbosity |
-| `HOST` | `0.0.0.0` | Network interface to bind |
-| `PORT` | `8000` | TCP port |
-| `OLLAMA_BASE_URL` | `http://localhost:11434` | Where Ollama is reachable |
-| `OLLAMA_DEFAULT_MODEL` | `llama3.1:8b` | Model used when not specified per-request |
-| `OLLAMA_TIMEOUT_SECONDS` | `300` | HTTP timeout when calling Ollama (CPU inference can be slow) |
-| `CORS_ALLOWED_ORIGINS` | `["http://localhost:3000","http://localhost:5173"]` | Origins permitted to call the API from a browser |
-| `CORS_ALLOW_CREDENTIALS` | `true` | Whether to allow cookies/auth headers in CORS requests |
+| Variable                 | Default                                             | Description                                                  |
+| ------------------------ | --------------------------------------------------- | ------------------------------------------------------------ |
+| `APP_ENV`                | `development`                                       | Runtime environment (`development`, `staging`, `production`) |
+| `LOG_LEVEL`              | `INFO`                                              | Log verbosity                                                |
+| `HOST`                   | `0.0.0.0`                                           | Network interface to bind                                    |
+| `PORT`                   | `8000`                                              | TCP port                                                     |
+| `OLLAMA_BASE_URL`        | `http://localhost:11434`                            | Where Ollama is reachable                                    |
+| `OLLAMA_DEFAULT_MODEL`   | `llama3.1:8b`                                       | Model used when not specified per-request                    |
+| `OLLAMA_TIMEOUT_SECONDS` | `300`                                               | HTTP timeout when calling Ollama (CPU inference can be slow) |
+| `CORS_ALLOWED_ORIGINS`   | `["http://localhost:3000","http://localhost:5173"]` | Origins permitted to call the API from a browser             |
+| `CORS_ALLOW_CREDENTIALS` | `true`                                              | Whether to allow cookies/auth headers in CORS requests       |
 
 ---
+
 ### Run the API
 
 Two ways: directly with uvicorn for development, or with Docker for an environment closer to production.
