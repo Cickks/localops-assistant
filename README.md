@@ -8,7 +8,7 @@
 
 AISteve is a self-hosted AI assistant designed to run on a homelab. It uses a local LLM (via [Ollama](https://ollama.com)), exposes a clean HTTP API with streaming support, and is built to grow into a full system-aware assistant — RAG over personal notes, voice input, system monitoring, and safe command execution.
 
-Long term, AISteve is intended to become more than an infrastructure chatbot. The larger vision is a **personal enterprise operating system** for Michael's homelab, career development, portfolio, future business workflows, and day-to-day productivity. See [docs/AI_STEVE_VISION.md](docs/AI_STEVE_VISION.md).
+Long term, AISteve is intended to become more than an infrastructure chatbot. The larger vision is a **personal enterprise operating system** for Michael's homelab, career development, portfolio, future business workflows, and day-to-day productivity. See [docs/AI_STEVE_VISION.md](docs/AI_STEVE_VISION.md) and [docs/HOMELAB_MASTERPLAN_SYNC.md](docs/HOMELAB_MASTERPLAN_SYNC.md).
 
 Current homelab alignment: AISteve stays downstream of the enterprise foundation. Phase 12 is still building LINUX01 operations skills first: Samba and NFS are complete, Cron is next, then systemd, SSH keys, Linux backups, first-app planning, documentation platform planning, and later INFRA01 production readiness.
 

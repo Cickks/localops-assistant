@@ -4,6 +4,8 @@ AI Steve is not just a chatbot and not only a server assistant.
 
 The long-term goal is to build AI Steve into Michael's personal enterprise operating system: an AI command center for the homelab, documentation, help desk practice, cybersecurity, automation, career growth, portfolio evidence, future business services, and personal productivity.
 
+Current homelab sequencing is tracked in [HOMELAB_MASTERPLAN_SYNC.md](HOMELAB_MASTERPLAN_SYNC.md).
+
 ## North Star
 
 AI Steve should eventually be able to answer:
