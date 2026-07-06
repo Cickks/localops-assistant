@@ -10,8 +10,8 @@ is allowed to recommend or perform operational changes.
 | ----- | ---------------------------- | -------- | ----------------------------------------------------------- |
 | 12.1  | Samba                        | Complete | File-sharing and permission evidence for later reference    |
 | 12.2  | NFS                          | Complete | Linux storage and mount-validation evidence                 |
-| 12.3  | Cron jobs                    | Next     | Scheduled maintenance and reporting patterns                |
-| 12.4  | systemd services             | Planned  | Service lifecycle, logging, and failure-handling patterns   |
+| 12.3  | Cron jobs                    | Complete | Scheduled maintenance and reporting patterns                |
+| 12.4  | systemd services             | Next     | Service lifecycle, logging, and failure-handling patterns   |
 | 12.5  | SSH keys                     | Planned  | Secure remote administration foundation                     |
 | 12.6  | Linux backups                | Planned  | Required before automating or advising on operational state |
 | 12.7  | First self-hosted app        | Planned  | Practical app-hosting evidence after backups are understood |
