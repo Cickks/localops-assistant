@@ -1,9 +1,4 @@
-"""
-AISteve — FastAPI application entry point.
-
-Run locally:
-    uv run uvicorn app.main:app --reload
-"""
+"""FastAPI application entry point."""
 
 from contextlib import asynccontextmanager
 
@@ -23,7 +18,7 @@ async def lifespan(app: FastAPI):
     """Application lifespan manager — owns long-lived resources."""
     # --- startup ---
     configure_logging()
-    logger = get_logger("aisteve.startup")
+    logger = get_logger("localops_assistant.startup")
     logger.info(
         "application_starting",
         app_name=settings.app_name,
@@ -48,8 +43,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="AISteve",
-    description="Local AI Homelab Assistant (Jarvis-inspired)",
+    title="LocalOps Assistant",
+    description="Local-first operations assistant API backed by Ollama",
     version="0.1.0",
     lifespan=lifespan,
 )
@@ -60,7 +55,7 @@ app = FastAPI(
 # including CORS preflight responses and any errors.
 app.add_middleware(BaseHTTPMiddleware, dispatch=request_id_middleware)
 
-# CORS — allow the future dashboard (and dev tooling) to call this API from a browser.
+# CORS allows approved browser clients to call this API.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_allowed_origins,

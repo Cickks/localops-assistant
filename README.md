@@ -1,293 +1,183 @@
-# AISteve
+# LocalOps Assistant
 
-[![CI](https://github.com/Cickks/AISTEVE/actions/workflows/ci.yml/badge.svg)](https://github.com/Cickks/AISTEVE/actions/workflows/ci.yml)
-[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![CI](https://github.com/Cickks/localops-assistant/actions/workflows/ci.yml/badge.svg)](https://github.com/Cickks/localops-assistant/actions/workflows/ci.yml)
 
-> A local-first AI homelab assistant — Jarvis-inspired, but grounded in real engineering.
+LocalOps Assistant is a local-first FastAPI service that provides a simple HTTP API for chatting with
+a local Ollama model. The project is built as a portfolio-grade backend service with typed request
+models, structured logging, request ID tracing, health checks, Docker support, and automated tests.
 
-AISteve is a self-hosted AI assistant designed to run on a homelab. It uses a local LLM (via [Ollama](https://ollama.com)), exposes a clean HTTP API with streaming support, and is built to grow into a full system-aware assistant — RAG over personal notes, voice input, system monitoring, and safe command execution.
+The current implementation is intentionally small. It does not include memory, RAG, voice control,
+monitoring integrations, command execution, or a frontend dashboard yet.
 
-Long term, AISteve is intended to become more than an infrastructure chatbot. The larger vision is a **personal enterprise operating system** for Michael's homelab, career development, portfolio, future business workflows, and day-to-day productivity. See [docs/AI_STEVE_VISION.md](docs/AI_STEVE_VISION.md) and [docs/HOMELAB_MASTERPLAN_SYNC.md](docs/HOMELAB_MASTERPLAN_SYNC.md).
+## Features
 
-Current homelab alignment: AISteve stays downstream of the enterprise foundation. Phase 12 is still building LINUX01 operations skills first: Samba and NFS are complete, Cron is next, then systemd, SSH keys, Linux backups, first-app planning, documentation platform planning, and later INFRA01 production readiness.
+- FastAPI application with OpenAPI documentation at `/docs`
+- Non-streaming chat endpoint backed by Ollama
+- Server-Sent Events streaming endpoint
+- Model listing endpoint
+- Liveness and readiness checks
+- Structured logging with request IDs
+- Environment-based configuration with Pydantic Settings
+- Unit and integration tests with coverage enforcement
+- Dockerfile and Docker Compose setup for local container testing
 
-This repo is a **portfolio project** built in public, in phases, with a focus on clean architecture and real-world production patterns.
+## Tech Stack
 
----
+- Python 3.11
+- FastAPI
+- Uvicorn
+- Pydantic and pydantic-settings
+- httpx
+- structlog
+- pytest, pytest-cov, pytest-asyncio
+- Ruff
+- uv
+- Docker and Docker Compose
+- Ollama
 
-## Master plan alignment
+## Folder Structure
 
-AISteve is intentionally later in the enterprise homelab roadmap. The current priority is to finish the infrastructure foundation first, then let AISteve read, summarize, and eventually assist with documented systems.
-
-Current homelab sequence:
-
-| Homelab phase               | Status   | Why it matters for AISteve                                                                                                |
-| --------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------- |
-| 12.1 Samba                  | Complete | Teaches internal file sharing, permissions, service validation, and rollback evidence                                     |
-| 12.2 NFS                    | Complete | Teaches Linux storage exports, mount validation, client scope, and service troubleshooting                                |
-| 12.3 Cron jobs              | Next     | Gives AISteve future scheduled checks, reports, and maintenance workflows to understand                                   |
-| 12.4 systemd services       | Planned  | Teaches service lifecycle, logs, enablement, restart behavior, and failure handling                                       |
-| 12.5 SSH keys               | Planned  | Creates the secure remote-admin foundation for automation and sync workflows                                              |
-| 12.6 Linux backups          | Planned  | Establishes restore discipline before AISteve can trust or suggest operational changes                                    |
-| 12.7 First app decision     | Planned  | Gitea is the preferred first app after backup basics; Vaultwarden comes later after security handling is proven           |
-| 12.8 Documentation platform | Planned  | BookStack or Wiki.js will become a structured source of SOPs, incidents, change logs, rollback notes, and backup evidence |
-| 12.0B INFRA01 readiness     | Planned  | INFRA01 stays staged until SSD storage, Docker data placement, backups, monitoring, and rollback are documented           |
-
-AISteve should eventually consume:
-
-- Phase tracker and roadmap
-- Server and service inventory
-- Port inventory
-- SOPs and runbooks
-- Troubleshooting guides
-- Change logs and incident reports
-- Backup and restore evidence
-- Monitoring output after the monitoring phase exists
-
-AISteve should not perform write operations against homelab systems until those systems have clear access paths, monitoring, backups, and rollback procedures.
-
----
-
-## Why this project exists
-
-Most "AI chatbot" tutorials skip the engineering. AISteve is the opposite: the LLM is just one component. The interesting parts are the architecture, the layered codebase, the operational concerns (logging, request tracing, health checks, configuration), and the path to running this on real homelab hardware.
-
-Engineering goals:
-
-- **Local-first** — no cloud LLM dependency. Everything runs on your hardware.
-- **Phased** — small, working increments. No big-bang rewrites.
-- **Production-style** — structured logging, request ID tracing, environment config, typed APIs, separated layers, automated tests with 90% coverage.
-- **Portable** — runs on a laptop today, migrates to a mini PC tomorrow. Verified on Linux and Windows.
-- **Bigger than chat** — grows into an AI command center for infrastructure, documentation, tickets, security, automation, career evidence, business workflows, and personal productivity.
-
----
-
-## Phase status
-
-| Phase                     | Status      | Description                                                                                                           |
-| ------------------------- | ----------- | --------------------------------------------------------------------------------------------------------------------- |
-| 1. Core Brain             | ✅ Complete | FastAPI service, Ollama integration, streaming, request tracing, CORS, 45 tests at 90% coverage                       |
-| 2. Memory & RAG           | ⏳ Planned  | ChromaDB, conversation persistence                                                                                    |
-| 3. Voice Node             | ⏳ Planned  | Raspberry Pi + Whisper STT                                                                                            |
-| 4. System Awareness       | ⏳ Planned  | Prometheus metrics, log analysis                                                                                      |
-| 5. Safe Command Execution | ⏳ Planned  | Whitelisted command runner                                                                                            |
-| 6. Dashboard              | ⏳ Planned  | React frontend                                                                                                        |
-| 7. Production Migration   | ⏳ Planned  | Mini PC deployment, reverse proxy, TLS                                                                                |
-| 8. Personal Enterprise OS | 🔮 Future   | Agents for infrastructure, documentation, help desk, security, portfolio, study, business, and productivity workflows |
-
----
-
-## Architecture (Phase 1)
-
-```
-┌─────────────────────┐         ┌─────────────────────┐
-│  HTTP Client        │ ──────▶ │  AISteve API        │
-│  (curl, browser,    │         │  (FastAPI/uvicorn)  │
-│  future dashboard)  │ ◀────── │                     │
-└─────────────────────┘   SSE   │  - /health          │
-                                │  - /ready           │
-                                │  - /api/v1/chat     │
-                                │  - /api/v1/chat/    │
-                                │      stream         │
-                                │  - /api/v1/models   │
-                                └──────────┬──────────┘
-                                           │
-                                           ▼
-                                ┌─────────────────────┐
-                                │  Ollama             │
-                                │  (local LLM server) │
-                                └─────────────────────┘
+```text
+app/
+  api/          HTTP routes, middleware, and FastAPI dependencies
+  core/         Settings, logging, and shared exceptions
+  providers/   Ollama integration
+  schemas/     Pydantic request and response models
+  services/    Application logic
+docs/           Product and homelab alignment notes
+tests/
+  integration/ End-to-end route tests using FastAPI TestClient
+  unit/        Service and provider tests
 ```
 
-Code is organized in layers:
+## API Endpoints
 
-- `app/api/` — HTTP routes, middleware, FastAPI dependencies (request/response shapes only)
-- `app/services/` — Business logic ("what should AISteve do?")
-- `app/providers/` — External integrations (Ollama today, ChromaDB later)
-- `app/core/` — Config, logging, exceptions, shared utilities
-- `app/schemas/` — Pydantic request/response models
+| Method | Path                  | Purpose                                               |
+| ------ | --------------------- | ----------------------------------------------------- |
+| `GET`  | `/health`             | Liveness check                                        |
+| `GET`  | `/ready`              | Readiness check that verifies Ollama connectivity     |
+| `POST` | `/api/v1/chat`        | Send a message and receive one complete response      |
+| `POST` | `/api/v1/chat/stream` | Stream assistant output as Server-Sent Events         |
+| `GET`  | `/api/v1/models`      | List models available from the configured Ollama host |
 
-The service layer doesn't know about HTTP. The provider layer doesn't know about FastAPI. This separation is what lets future phases add new components (RAG, monitoring, voice) without rewrites — and it's also what makes the code testable in isolation.
+## Setup
 
----
+Prerequisites:
 
-## API endpoints
-
-| Method | Path                  | Purpose                                                  |
-| ------ | --------------------- | -------------------------------------------------------- |
-| `GET`  | `/health`             | Liveness probe (always returns 200 if the process is up) |
-| `GET`  | `/ready`              | Readiness probe (returns 503 if Ollama is unreachable)   |
-| `POST` | `/api/v1/chat`        | Send a message, receive the complete response            |
-| `POST` | `/api/v1/chat/stream` | Send a message, stream tokens as Server-Sent Events      |
-| `GET`  | `/api/v1/models`      | List models installed in Ollama                          |
-
-Every response carries an `X-Request-ID` header. The same ID appears on every log line emitted while handling that request, making issues straightforward to trace through the layers. Clients can also send their own `X-Request-ID` header for distributed tracing — AISteve will honor it instead of generating a new one.
-
-Full interactive API docs are auto-generated at [`/docs`](http://localhost:8000/docs) when the server is running.
-
----
-
-## Getting started
-
-### Prerequisites
-
-- Linux (Ubuntu 22.04+), macOS, or Windows 10/11
 - Python 3.11+
-- [Ollama](https://ollama.com) installed and running
-- [uv](https://github.com/astral-sh/uv) (modern Python package manager)
-- A pulled model (default: `llama3.1:8b`)
-
-### Install Ollama and pull a model
-
-**Linux / macOS:**
+- [uv](https://github.com/astral-sh/uv)
+- [Ollama](https://ollama.com)
+- A local Ollama model such as `llama3.1:8b`
 
 ```bash
-curl -fsSL https://ollama.com/install.sh | sh
-ollama pull llama3.1:8b
-```
-
-**Windows:** download the installer from [ollama.com/download/windows](https://ollama.com/download/windows), then:
-
-```powershell
-ollama pull llama3.1:8b
-```
-
-### Clone and set up
-
-```bash
-git clone git@github.com:Cickks/AISTEVE.git
-cd AISTEVE
-
-# Create environment config
-cp .env.example .env       # On Windows: Copy-Item .env.example .env
-
-# Create venv and install dependencies
+git clone git@github.com:Cickks/localops-assistant.git
+cd localops-assistant
+cp .env.example .env
 uv sync
-```
-
-### Run the API
-
-```bash
+ollama pull llama3.1:8b
 uv run uvicorn app.main:app --reload
 ```
 
-Then visit:
+Open:
 
 - API docs: http://localhost:8000/docs
 - Health check: http://localhost:8000/health
+- Readiness check: http://localhost:8000/ready
 
-### Try a chat request
-
-Non-streaming:
+## Example Request
 
 ```bash
 curl -X POST http://localhost:8000/api/v1/chat \
   -H "Content-Type: application/json" \
-  -d '{"message": "What is a REST API?"}'
+  -d '{"message": "Explain what a readiness probe is."}'
 ```
 
-Streaming (Server-Sent Events):
+Streaming:
 
 ```bash
 curl -N -X POST http://localhost:8000/api/v1/chat/stream \
   -H "Content-Type: application/json" \
-  -d '{"message": "Count from 1 to 10 with a comment about each."}'
+  -d '{"message": "List three Linux service troubleshooting commands."}'
 ```
 
-The `-N` flag disables curl's output buffering so chunks appear as they arrive.
+## Docker
 
----
-
-## Testing
-
-AISteve has 45 automated tests covering 90% of the application code. Tests are organized into two categories:
-
-- **Unit tests** (`tests/unit/`) — test one class in isolation against a fake provider. ~26 tests, sub-second runtime.
-- **Integration tests** (`tests/integration/`) — exercise the full request lifecycle (middleware → route → service → fake provider) using FastAPI's `TestClient`. ~19 tests, no real network.
-
-No tests require a running Ollama instance. The `OllamaProvider` tests use [`httpx.MockTransport`](https://www.python-httpx.org/advanced/transports/) to intercept HTTP calls inside the httpx client itself — real provider code paths execute (request building, NDJSON streaming, error mapping), but no network is involved.
+Run the API and Ollama on a private Docker network:
 
 ```bash
-# Run everything (unit + integration + coverage)
+docker compose up --build
+```
+
+Pull the default model into the Ollama container the first time:
+
+```bash
+docker exec localops-assistant-ollama ollama pull llama3.1:8b
+```
+
+The API listens on http://localhost:8000.
+
+## Environment Variables
+
+Configuration is loaded from `.env`. Start with `.env.example`.
+
+| Variable                 | Default                                             | Purpose                                 |
+| ------------------------ | --------------------------------------------------- | --------------------------------------- |
+| `APP_ENV`                | `development`                                       | Runtime environment                     |
+| `LOG_LEVEL`              | `INFO`                                              | Application log level                   |
+| `HOST`                   | `0.0.0.0`                                           | Bind address                            |
+| `PORT`                   | `8000`                                              | API port                                |
+| `OLLAMA_BASE_URL`        | `http://localhost:11434`                            | Ollama API URL                          |
+| `OLLAMA_DEFAULT_MODEL`   | `llama3.1:8b`                                       | Default model for chat requests         |
+| `OLLAMA_TIMEOUT_SECONDS` | `300`                                               | Timeout for model responses             |
+| `CORS_ALLOWED_ORIGINS`   | `["http://localhost:3000","http://localhost:5173"]` | Browser origins allowed to call the API |
+| `CORS_ALLOW_CREDENTIALS` | `true`                                              | Whether CORS allows credentials         |
+
+Do not commit `.env` files.
+
+## Development Workflow
+
+`main` is the stable branch. Active work should happen on `dev` or short-lived feature branches
+created from `dev`.
+
+Recommended flow:
+
+```bash
+git switch dev
+git pull
+git switch -c feature/short-description
+uv run ruff check .
+uv run ruff format --check .
 uv run pytest
-
-# Run just unit tests for fast feedback during development
-uv run pytest tests/unit/
-
-# Run just integration tests
-uv run pytest tests/integration/
-
-# See verbose output with each test name
-uv run pytest -v
 ```
 
-Coverage gates are enforced in `pyproject.toml`: pytest fails the build if total coverage drops below 85%.
+Merge feature work into `dev` first. Merge `dev` into `main` only after tests pass and the README,
+configuration, and deployment notes still match the code.
 
----
-
-## Development
-
-| Command                                | Purpose                            |
-| -------------------------------------- | ---------------------------------- |
-| `uv run uvicorn app.main:app --reload` | Run dev server with hot reload     |
-| `uv run pytest`                        | Run all tests with coverage report |
-| `uv run pytest tests/unit/`            | Run only unit tests (fastest)      |
-| `uv run ruff check .`                  | Lint code                          |
-| `uv run ruff format .`                 | Format code                        |
-| `uv run ruff check --fix .`            | Auto-fix lint issues               |
-
----
-
-## Configuration
-
-All configuration is loaded from `.env`. See `.env.example` for all variables.
-
-| Variable                 | Default                                             | Description                                                  |
-| ------------------------ | --------------------------------------------------- | ------------------------------------------------------------ |
-| `APP_ENV`                | `development`                                       | Runtime environment (`development`, `staging`, `production`) |
-| `LOG_LEVEL`              | `INFO`                                              | Log verbosity                                                |
-| `HOST`                   | `0.0.0.0`                                           | Network interface to bind                                    |
-| `PORT`                   | `8000`                                              | TCP port                                                     |
-| `OLLAMA_BASE_URL`        | `http://localhost:11434`                            | Where Ollama is reachable                                    |
-| `OLLAMA_DEFAULT_MODEL`   | `llama3.1:8b`                                       | Model used when not specified per-request                    |
-| `OLLAMA_TIMEOUT_SECONDS` | `300`                                               | HTTP timeout when calling Ollama (CPU inference can be slow) |
-| `CORS_ALLOWED_ORIGINS`   | `["http://localhost:3000","http://localhost:5173"]` | Origins permitted to call the API from a browser             |
-| `CORS_ALLOW_CREDENTIALS` | `true`                                              | Whether to allow cookies/auth headers in CORS requests       |
-
----
-
-### Run the API
-
-Two ways: directly with uvicorn for development, or with Docker for an environment closer to production.
-
-**Option 1 — Local (with hot reload):**
+## Verification Commands
 
 ```bash
-uv run uvicorn app.main:app --reload
+uv run ruff check .
+uv run ruff format --check .
+uv run pytest
+docker compose config
 ```
 
-This requires Ollama running on the host at `http://localhost:11434`.
+## Deployment Notes
 
-**Option 2 — Docker Compose (AISteve + Ollama together):**
+This project is ready for local development and container testing. A production deployment still
+needs a documented host, persistent storage plan, reverse proxy/TLS decision, monitoring, backup and
+restore steps, and rollback procedure.
 
-```bash
-docker compose up
-```
+## Known Limitations
 
-This brings up both AISteve and an Ollama container on the same Docker network. AISteve reaches Ollama by service name (`http://ollama:11434`), no host configuration needed. Models persist across restarts in a named Docker volume.
+- No persistent conversation memory yet
+- No RAG or document ingestion
+- No authentication or authorization
+- No frontend dashboard
+- No safe command execution
+- Docker Compose uses the latest Ollama image tag for local testing
 
-First time only, pull a model into the Ollama container:
+## Related Documentation
 
-```bash
-docker exec aisteve-ollama ollama pull llama3.1:8b
-```
-
-Either way, the API is live at:
-
-- API docs: http://localhost:8000/docs
-- Health check: http://localhost:8000/health
-
-## License
-
-MIT
+- [Product vision](docs/PRODUCT_VISION.md)
+- [Homelab alignment](docs/HOMELAB_ALIGNMENT.md)

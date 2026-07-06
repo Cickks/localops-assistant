@@ -1,7 +1,7 @@
 """
 Pydantic schemas for chat-related API requests and responses.
 
-These define the contract between AISteve and its clients.
+These define the contract between LocalOps Assistant and its clients.
 Everything HTTP-facing in the chat domain is shaped here.
 """
 

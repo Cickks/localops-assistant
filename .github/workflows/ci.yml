@@ -53,6 +53,6 @@ jobs:
           context: .
           file: ./Dockerfile
           push: false
-          tags: aisteve:ci
+          tags: localops-assistant:ci
           cache-from: type=gha
           cache-to: type=gha,mode=max

@@ -24,7 +24,10 @@ class Settings(BaseSettings):
     )
 
     # Application
-    app_name: str = Field(default="aisteve", description="Application name used in logs.")
+    app_name: str = Field(
+        default="localops-assistant",
+        description="Application name used in logs.",
+    )
     app_env: Literal["development", "staging", "production"] = Field(
         default="development",
         description="Runtime environment. Affects log format and error verbosity.",
@@ -59,7 +62,7 @@ class Settings(BaseSettings):
         description=(
             "List of allowed origins for CORS. "
             "Defaults cover Create React App (3000) and Vite (5173) dev servers. "
-            "Set to ['*'] to allow all origins (development only — never in production)."
+            "Set to ['*'] only for isolated local development."
         ),
     )
     cors_allow_credentials: bool = Field(

@@ -33,10 +33,7 @@ Thumbs.db
 *.log
 logs/
 
-# uv lock file (revisit at deployment phase)
-uv.lock
-
-# AISteve-specific (future phases)
+# Local runtime data
 data/
 chroma_db/
 
